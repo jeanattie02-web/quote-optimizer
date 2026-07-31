@@ -1,7 +1,10 @@
 import streamlit as st
+import pandas as pd
 from src.calculator import calculer_devis
 
-st.title(" Quote Optimizer")
+st.set_page_config(page_title="Quote Optimizer", page_icon="📊", layout="wide")
+
+st.title("Quote Optimizer")
 st.write("Optimisez vos chiffrages de projets web et d'analyse de données.")
 
 # --- Formulaire de saisie ---
@@ -19,7 +22,7 @@ with col2:
     marge_cible_pct = st.slider("Marge cible (%)", min_value=5, max_value=80, value=25)
 
 # --- Calcul et affichage ---
-if st.button("Calculer le devis"):
+if st.button("Calculer le devis", type="primary"):
     marge_cible_decimal = marge_cible_pct / 100.0
     
     res = calculer_devis(
@@ -33,7 +36,29 @@ if st.button("Calculer le devis"):
     st.markdown("---")
     st.header("2. Résultats du chiffrage")
     
+    # KPIs principaux
     m1, m2, m3 = st.columns(3)
     m1.metric("Coût de revient total", f"{res['cout_revient_total']:.2f} €")
     m2.metric("Prix de vente conseillé", f"{res['prix_vente_conseille']:.2f} €")
     m3.metric("Marge brute générée", f"{res['marge_brute_euros']:.2f} €")
+
+    st.subheader("💡 Détail de la structure des coûts")
+    
+    # Calcul du détail pour la transparence
+    cout_mo = res['cout_humain']
+    frais_gen = cout_mo * 0.05
+    
+    d1, d2, d3 = st.columns(3)
+    d1.write(f"• **Main-d'œuvre brute :** {cout_mo:.2f} €")
+    d2.write(f"• **Frais généraux (5%) :** {frais_gen:.2f} €")
+    d3.write(f"• **Frais annexes :** {frais_deplacement:.2f} €")
+
+    # --- Visualisation graphique ---
+    st.subheader("📈 Ventilation du Prix de Vente")
+    
+    df_chart = pd.DataFrame({
+        "Poste": ["Main-d'œuvre", "Frais Généraux", "Frais Annexes", "Marge Brute"],
+        "Montant (€)": [cout_mo, frais_gen, frais_deplacement, res['marge_brute_euros']]
+    }).set_index("Poste")
+
+    st.bar_chart(df_chart)
