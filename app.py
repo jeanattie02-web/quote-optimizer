@@ -44,21 +44,48 @@ if st.button("Calculer le devis", type="primary"):
 
     st.subheader("💡 Détail de la structure des coûts")
     
-    # Calcul du détail pour la transparence
-    cout_mo = res['cout_humain']
-    frais_gen = cout_mo * 0.05
+    
     
     d1, d2, d3 = st.columns(3)
-    d1.write(f"• **Main-d'œuvre brute :** {cout_mo:.2f} €")
-    d2.write(f"• **Frais généraux (5%) :** {frais_gen:.2f} €")
-    d3.write(f"• **Frais annexes :** {frais_deplacement:.2f} €")
+    d1.write(f"• **Main-d'œuvre brute :** {res['cout_humain_total']:.2f} €")
+    d2.write(f"• **Frais généraux (5%) :** {res['frais_generaux']:.2f} €")
+    d3.write(f"• **Frais annexes :** {res['frais_deplacement']:.2f} €")
 
     # --- Visualisation graphique ---
     st.subheader("📈 Ventilation du Prix de Vente")
     
     df_chart = pd.DataFrame({
         "Poste": ["Main-d'œuvre", "Frais Généraux", "Frais Annexes", "Marge Brute"],
-        "Montant (€)": [cout_mo, frais_gen, frais_deplacement, res['marge_brute_euros']]
+        "Montant (€)": [
+            res['cout_humain_total'], 
+            res['frais_generaux'], 
+            res['frais_deplacement'], 
+            res['marge_brute_euros']
+            ]
     }).set_index("Poste")
 
     st.bar_chart(df_chart)
+
+# --- Exportation CSV ---
+    st.subheader("📥 Exporter la synthèse")
+    
+    df_export = pd.DataFrame([{
+        "Jours Junior": jours_junior,
+        "Jours Confirme": jours_confirme,
+        "Jours Senior": jours_senior,
+        "Cout Main Oeuvre (€)": round(res['cout_humain_total'], 2),
+        "Frais Generaux (€)": round(res['frais_generaux'], 2),
+        "Frais Annexes (€)": round(res['frais_deplacement'], 2),
+        "Cout Revient Total (€)": round(res['cout_revient_total'], 2),
+        "Prix Vente Conseille (€)": round(res['prix_vente_conseille'], 2),
+        "Marge Brute (€)": round(res['marge_brute_euros'], 2)
+    }])
+
+    csv_data = df_export.to_csv(index=False, sep=';').encode('utf-8-sig')
+
+    st.download_button(
+        label="📄 Télécharger le devis (.CSV)",
+        data=csv_data,
+        file_name="devis_quote_optimizer.csv",
+        mime="text/csv"
+    )
