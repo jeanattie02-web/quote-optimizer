@@ -29,6 +29,12 @@ def calculer_devis(
     cout_revient_total = cout_humain + frais_deplacement+ frais_generaux     
     
     # Sécurité 
+    # Vérification des valeurs négatives
+    if jours_junior < 0 or jours_confirme < 0 or jours_senior < 0:
+        raise ValueError("Le nombre de jours ne peut pas être négatif.")
+        
+    if frais_deplacement < 0:
+        raise ValueError("Les frais de déplacement ne peuvent pas être négatifs.")
     if marge_cible >= 1.0 or marge_cible<0:
         raise ValueError("La marge cible doit être strictement inférieure à 100% (1.0) et supérieure ou égaole à 0")
 
