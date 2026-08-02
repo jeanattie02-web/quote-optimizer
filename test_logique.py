@@ -7,7 +7,7 @@ resultat = calculer_devis(
     jours_confirme=5,
     jours_senior=2,
     frais_deplacement=500.0,
-    marge_cible=0.25
+    marge_cible=0.25,
 )
 
 print("--- RÉSULTATS DU CHIFFRAGE ---")
