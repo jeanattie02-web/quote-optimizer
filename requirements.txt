@@ -1,3 +1,5 @@
+pytest
+black
+flake8
 streamlit
 pandas
-python -m pip freeze > requirements.txt
