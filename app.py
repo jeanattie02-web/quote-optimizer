@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 from src.calculator import calculer_devis
+from src.models import QuoteInput
+from pydantic import ValidationError
 
 st.set_page_config(page_title="Quote Optimizer", page_icon="📊", layout="wide")
 
@@ -28,15 +30,20 @@ with col2:
 # ---marge en décimal---
 marge_cible_decimal = marge_cible_pct / 100.0
 
-
-# ---Zone d'affichage des résultats ou des erreurs---
-
+# ---Pydantic---
 erreur_saisie = None
-if jours_junior < 0 or jours_confirme < 0 or jours_senior < 0:
-    erreur_saisie = "Le nombre de jours ne peut pas être négatif."
-elif frais_deplacement < 0:
-    erreur_saisie = "Les frais de déplacement ne peuvent pas être négatifs."
-    # Si une erreur est détectée, on l'affiche immédiatement ici
+quote_input = None
+try:
+    quote_input = QuoteInput(
+        jours_junior=jours_junior,
+        jours_confirme=jours_confirme,
+        jours_senior=jours_senior,
+        frais_deplacement=frais_deplacement,
+        marge_cible=marge_cible_decimal,
+    )
+except ValidationError as e:
+    # Récupération du premier message d'erreur Pydantic
+    erreur_saisie = e.errors()[0]["msg"]
 if erreur_saisie:
     st.error(f"Erreur de saisie : {erreur_saisie}")
 
@@ -53,13 +60,7 @@ if bouton_calcul and not erreur_saisie:
     resultats_container.empty()
     with resultats_container:
         try:
-            res = calculer_devis_cached(
-                jours_junior=jours_junior,
-                jours_confirme=jours_confirme,
-                jours_senior=jours_senior,
-                frais_deplacement=frais_deplacement,
-                marge_cible=marge_cible_decimal,
-            )
+            res = calculer_devis_cached(quote_input)
 
             st.markdown("---")
             st.header("2. Résultats du chiffrage")
