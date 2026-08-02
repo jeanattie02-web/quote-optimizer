@@ -4,6 +4,10 @@ from src.calculator import calculer_devis
 
 st.set_page_config(page_title="Quote Optimizer", page_icon="📊", layout="wide")
 
+# On applique le cache Streamlit sur la fonction importée directement dans l'app
+calculer_devis_cached = st.cache_data(calculer_devis)
+
+
 st.title("Quote Optimizer")
 st.write("Optimisez vos chiffrages de projets web et d'analyse de données.")
 
@@ -47,7 +51,7 @@ if bouton_calcul and not erreur_saisie:
     resultats_container.empty()
     with resultats_container:
         try:
-            res = calculer_devis(
+            res = calculer_devis_cached(
                 jours_junior=jours_junior,
                 jours_confirme=jours_confirme,
                 jours_senior=jours_senior,

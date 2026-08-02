@@ -1,6 +1,5 @@
 # src/calculator.py
 
-import streamlit as st
 FRAIS_GENERAUX_PCT = 0.05  # 5% de frais de structure
 
 def calculer_devis(
@@ -52,13 +51,3 @@ def calculer_devis(
         "marge_brute_euros": marge_brute_euros
     }
 
-@st.cache_data
-def calculer_devis(
-    jours_junior: int = 0,
-    jours_confirme: int = 0,
-    jours_senior: int = 0,
-    frais_deplacement: float = 0.0,
-    marge_cible: float = 0.25
-) -> dict:
-    # Le reste de ta fonction de calcul reste exactement inchangé
-    ...
