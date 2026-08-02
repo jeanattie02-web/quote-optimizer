@@ -19,3 +19,11 @@ def test_calculer_devis_nominal():
 def test_marge_invalide():
     with pytest.raises(ValueError):
         calculer_devis(1, 1, 1, 100, 1.2)
+
+def test_jours_negatifs():
+    with pytest.raises(ValueError):
+        calculer_devis(-1, 5, 2, 500.0, 0.25)
+
+def test_frais_negatifs():
+    with pytest.raises(ValueError):
+        calculer_devis(10, 5, 2, -100.0, 0.25)
