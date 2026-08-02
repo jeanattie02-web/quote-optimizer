@@ -3,4 +3,4 @@ black
 flake8
 streamlit
 pandas
-pydandic
+pydantic
