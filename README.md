@@ -34,5 +34,5 @@
 
 1. **Cloner le projet :**
    ```bash
-   git clone [https://github.com/jeanattie02-web/quote-optimizer.git](https://github.com/jeanattie02-web/quote-optimizer.git)
+   git clone https://github.com/jeanattie02-web/quote-optimizer.git
    cd quote-optimizer
