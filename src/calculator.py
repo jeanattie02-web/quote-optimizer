@@ -1,5 +1,6 @@
 # src/calculator.py
 from src.models import QuoteInput
+from src.logger import logger
 
 FRAIS_GENERAUX_PCT = 0.05  # 5% de frais de structure
 
@@ -26,7 +27,7 @@ def calculer_devis(input_data: QuoteInput) -> dict:
     marge_brute_euros = prix_vente_conseille - cout_revient_total
 
     # 2. On retourne un dictionnaire propre
-    return {
+    resultat = {
         "cout_humain_total": round(cout_humain, 2),
         "frais_generaux": round(frais_generaux, 2),
         "frais_deplacement": round(input_data.frais_deplacement, 2),
@@ -34,3 +35,8 @@ def calculer_devis(input_data: QuoteInput) -> dict:
         "prix_vente_conseille": round(prix_vente_conseille, 2),
         "marge_brute_euros": round(marge_brute_euros, 2),
     }
+    prix = resultat["prix_vente_conseille"]
+    marge = resultat["marge_brute_euros"]
+    logger.info(f"Calcul terminé | Prix conseillé: {prix} € | Marge: {marge} €")
+
+    return resultat

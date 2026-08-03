@@ -3,6 +3,7 @@ import pandas as pd
 from src.calculator import calculer_devis
 from src.models import QuoteInput
 from pydantic import ValidationError
+from src.logger import logger
 
 st.set_page_config(page_title="Quote Optimizer", page_icon="📊", layout="wide")
 
@@ -44,6 +45,7 @@ try:
 except ValidationError as e:
     # Récupération du premier message d'erreur Pydantic
     erreur_saisie = e.errors()[0]["msg"]
+    logger.warning(f"Saisie invalide détectée : {erreur_saisie}")
 if erreur_saisie:
     st.error(f"Erreur de saisie : {erreur_saisie}")
 
@@ -134,4 +136,5 @@ if bouton_calcul and not erreur_saisie:
                 mime="text/csv",
             )
         except ValueError as e:
+            logger.error(f"Erreur inattendue lors du calcul : {e}", exc_info=True)
             st.error(f"Erreur de saisie : {e}")
