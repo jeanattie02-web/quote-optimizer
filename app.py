@@ -5,6 +5,8 @@ from src.models import QuoteInput
 from pydantic import ValidationError
 from src.logger import logger
 
+from src.pdf_generator import generer_pdf_devis
+
 st.set_page_config(page_title="Quote Optimizer", page_icon="📊", layout="wide")
 
 # On applique le cache Streamlit sur la fonction importée directement dans l'app
@@ -134,6 +136,15 @@ if bouton_calcul and not erreur_saisie:
                 data=csv_data,
                 file_name="devis_quote_optimizer.csv",
                 mime="text/csv",
+            )
+
+            # Integration Export PDF
+            pdf_bytes = generer_pdf_devis(quote_input, res)
+            st.download_button(
+                label="📄 Télécharger le devis (.PDF)",
+                data=pdf_bytes,
+                file_name="devis_quote_optimizer.pdf",
+                mime="application/pdf",
             )
         except ValueError as e:
             logger.error(f"Erreur inattendue lors du calcul : {e}", exc_info=True)
