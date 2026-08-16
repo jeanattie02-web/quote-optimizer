@@ -5,7 +5,9 @@ from src.database import init_db
 client = TestClient(app)
 
 # Initialisation des tables SQLite pour les tests
+
 init_db()
+
 
 def test_health_check():
     response = client.get("/health")
