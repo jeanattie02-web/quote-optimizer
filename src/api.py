@@ -1,13 +1,16 @@
-from typing import List
+from typing import List, Optional
 from src.calculator import calculer_devis
 from src.crud import obtenir_tous_les_devis, sauvegarder_devis
-from src.database import get_db
+from src.database import get_db, init_db
 from src.logger import logger
 from src.models import QuoteInput
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Query
 from sqlalchemy.orm import Session
 from src.schemas import QuoteResponse
+
+# Initialise les tables en base au démarrage de l'API
+init_db()
 
 app = FastAPI(
     title="Quote Optimizer API",
@@ -44,6 +47,13 @@ def creer_devis(payload: QuoteInput, db: Session = Depends(get_db)):
     response_model=List[QuoteResponse],
     tags=["Quotes"],
 )
-def lister_devis(db: Session = Depends(get_db)):
-    """Récupère l'historique complet des devis enregistrés."""
-    return obtenir_tous_les_devis(db)
+def lister_devis(
+    skip: int = Query(0, ge=0, description="Nombre d'éléments à sauter"),
+    limit: int = Query(100, ge=1, le=100, description="Nombre maximal d'éléments"),
+    min_prix: Optional[float] = Query(
+        None, ge=0, description="Filtrer par prix de vente minimum"
+    ),
+    db: Session = Depends(get_db),
+):
+    """Récupère l'historique des devis avec support du filtrage et de la pagination."""
+    return obtenir_tous_les_devis(db, skip=skip, limit=limit, min_prix=min_prix)

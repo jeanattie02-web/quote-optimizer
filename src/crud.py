@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
@@ -27,6 +27,14 @@ def sauvegarder_devis(db: Session, quote_input: QuoteInput, res: dict) -> DevisD
     return db_devis
 
 
-def obtenir_tous_les_devis(db: Session) -> List[DevisDB]:
-    """Récupère l'ensemble des devis enregistrés par ordre décroissant."""
-    return db.query(DevisDB).order_by(DevisDB.id.desc()).all()
+def obtenir_tous_les_devis(
+    db: Session,
+    skip: int = 0,
+    limit: int = 100,
+    min_prix: Optional[float] = None,
+) -> List[DevisDB]:
+    """Récupère les devis enregistrés avec options de pagination et filtre."""
+    query = db.query(DevisDB)
+    if min_prix is not None:
+        query = query.filter(DevisDB.prix_vente_conseille >= min_prix)
+    return query.order_by(DevisDB.id.desc()).offset(skip).limit(limit).all()

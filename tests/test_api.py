@@ -37,3 +37,23 @@ def test_creer_et_lister_devis_via_api():
     devis_liste = get_response.json()
     assert len(devis_liste) > 0
     assert any(d["id"] == data["id"] for d in devis_liste)
+
+
+def test_validation_erreur_payload_invalide():
+    # Envoi de jours négatifs (non autorisés par Pydantic)
+    payload_invalide = {
+        "jours_junior": -1,
+        "jours_confirme": 0,
+        "jours_senior": 0,
+        "frais_deplacement": 0,
+        "marge_cible": 0.20,
+    }
+    response = client.post("/quotes", json=payload_invalide)
+    assert response.status_code == 422
+
+
+def test_filtrage_min_prix():
+    # Filtrer avec un montant excessivement élevé
+    response = client.get("/quotes?min_prix=99999999")
+    assert response.status_code == 200
+    assert len(response.json()) == 0
