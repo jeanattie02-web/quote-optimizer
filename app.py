@@ -9,8 +9,13 @@ from src.logger import logger
 from src.models import QuoteInput
 from src.pdf_generator import generer_pdf_devis
 
+from src.client import QuoteAPIClient
+
 # Initialisation de la BDD
 init_db()
+
+api_client = QuoteAPIClient()
+api_active = api_client.verifier_sante()
 
 st.set_page_config(page_title="Quote Optimizer", page_icon="📊", layout="wide")
 
@@ -19,6 +24,14 @@ calculer_devis_cached = st.cache_data(calculer_devis)
 st.title("Quote Optimizer")
 st.write("Optimisez vos chiffrages de projets web et d'analyse de données.")
 
+
+# Indicateur de statut de l'API dans la barre latérale
+if api_active:
+    st.sidebar.success("🟢 API FastAPI Connectée")
+else:
+    st.sidebar.warning("🟠 Mode Autonome (API Déconnectée)")
+
+tab_calcul, tab_historique = st.tabs(["💡 Nouveau Devis", "📜 Historique des Devis"])
 # Déclaration des onglets
 tab_calcul, tab_historique = st.tabs(["💡 Nouveau Devis", "📜 Historique des Devis"])
 
@@ -74,7 +87,11 @@ with tab_calcul:
 
     if bouton_calcul and not erreur_saisie and quote_input:
         try:
-            res = calculer_devis_cached(quote_input)
+            if api_active:
+                devis_data = api_client.creer_devis(quote_input)
+                res = calculer_devis(quote_input)
+            else:
+                res = calculer_devis_cached(quote_input)
 
             # --- Sauvegarde en base de données ---
             db = SessionLocal()
@@ -139,26 +156,48 @@ with tab_calcul:
 # --- ONGLET 2 : HISTORIQUE ---
 with tab_historique:
     st.subheader("Historique des devis enregistrés en BDD")
-    db = SessionLocal()
-    try:
-        devis_liste = obtenir_tous_les_devis(db)
-        if devis_liste:
+
+    if api_active:
+        liste_raw = api_client.recuperer_historique()
+        if liste_raw:
             data = [
                 {
-                    "ID": d.id,
-                    "Date": d.date_creation.strftime("%Y-%m-%d %H:%M"),
-                    "Jr Junior": d.jours_junior,
-                    "Jr Confirmé": d.jours_confirme,
-                    "Jr Senior": d.jours_senior,
-                    "Frais Dep (€)": d.frais_deplacement,
-                    "Marge (%)": f"{d.marge_cible * 100:.1f}%",
-                    "Coût Total (€)": d.cout_revient_total,
-                    "Prix Vente (€)": d.prix_vente_conseille,
+                    "ID": d["id"],
+                    "Date": d["date_creation"][:16].replace("T", " "),
+                    "Jr Junior": d["jours_junior"],
+                    "Jr Confirmé": d["jours_confirme"],
+                    "Jr Senior": d["jours_senior"],
+                    "Frais Dep (€)": d["frais_deplacement"],
+                    "Marge (%)": f"{d['marge_cible'] * 100:.1f}%",
+                    "Coût Total (€)": d["cout_revient_total"],
+                    "Prix Vente (€)": d["prix_vente_conseille"],
                 }
-                for d in devis_liste
+                for d in liste_raw
             ]
             st.dataframe(pd.DataFrame(data), use_container_width=True)
         else:
-            st.info("Aucun devis enregistrer en base.")
-    finally:
-        db.close()
+            st.info("Aucun devis enregistré en base.")
+    else:
+        db = SessionLocal()
+        try:
+            devis_liste = obtenir_tous_les_devis(db)
+            if devis_liste:
+                data = [
+                    {
+                        "ID": d.id,
+                        "Date": d.date_creation.strftime("%Y-%m-%d %H:%M"),
+                        "Jr Junior": d.jours_junior,
+                        "Jr Confirmé": d.jours_confirme,
+                        "Jr Senior": d.jours_senior,
+                        "Frais Dep (€)": d.frais_deplacement,
+                        "Marge (%)": f"{d.marge_cible * 100:.1f}%",
+                        "Coût Total (€)": d.cout_revient_total,
+                        "Prix Vente (€)": d.prix_vente_conseille,
+                    }
+                    for d in devis_liste
+                ]
+                st.dataframe(pd.DataFrame(data), use_container_width=True)
+            else:
+                st.info("Aucun devis enregistrer en base.")
+        finally:
+            db.close()
