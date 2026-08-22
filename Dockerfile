@@ -12,8 +12,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+# Copie du code source et de la configuration
+COPY src/ ./src/
+COPY app.py .
+COPY pytest.ini .
 
-EXPOSE 8501
+# Exposition des ports (FastAPI: 8000, Streamlit: 8501)
+EXPOSE 8000 8501
 
-CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+#Commande par défaut
+CMD ["uvicorn", "src.api:app", "--host", "0.0.0.0", "--port", "8000"]
