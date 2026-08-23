@@ -9,3 +9,4 @@ SQLAlchemy
 fastapi
 uvicorn
 httpx
+openpyxl

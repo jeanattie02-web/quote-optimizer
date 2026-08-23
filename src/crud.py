@@ -27,6 +27,9 @@ def sauvegarder_devis(db: Session, quote_input: QuoteInput, res: dict) -> DevisD
     return db_devis
 
 
+# Ajout
+
+
 def obtenir_tous_les_devis(
     db: Session,
     skip: int = 0,
@@ -37,4 +40,20 @@ def obtenir_tous_les_devis(
     query = db.query(DevisDB)
     if min_prix is not None:
         query = query.filter(DevisDB.prix_vente_conseille >= min_prix)
+        # SELECT * FROM devis WHERE "prix_vente_conseille">="min_prix"
     return query.order_by(DevisDB.id.desc()).offset(skip).limit(limit).all()
+
+
+# Suppression
+
+
+def supprimer_devis(db: Session, quote_id: int) -> bool:
+    """Supprime un devis par son identifiant unique."""
+    devis = db.query(DevisDB).filter(DevisDB.id == quote_id).first()
+    # SELECT * FROM devis WHERE id = quote_id LIMIT 1;.
+    if not devis:
+        return False
+    db.delete(devis)
+    db.commit()
+    logger.info(f"Devis #{quote_id} supprimé avec succès.")
+    return True

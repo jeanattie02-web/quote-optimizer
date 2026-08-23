@@ -1,6 +1,6 @@
 from typing import List, Optional
 from src.calculator import calculer_devis
-from src.crud import obtenir_tous_les_devis, sauvegarder_devis
+from src.crud import obtenir_tous_les_devis, sauvegarder_devis, supprimer_devis
 from src.database import get_db, init_db
 from src.logger import logger
 from src.models import QuoteInput
@@ -57,3 +57,19 @@ def lister_devis(
 ):
     """Récupère l'historique des devis avec support du filtrage et de la pagination."""
     return obtenir_tous_les_devis(db, skip=skip, limit=limit, min_prix=min_prix)
+
+
+# Delete
+@app.delete(
+    "/quotes/{quote_id}",
+    status_code=204,
+    tags=["Quotes"],
+)
+# Supression
+def effacer_devis(quote_id: int, db: Session = Depends(get_db)):
+    """Supprime un devis spécifique de la base de données."""
+    succes = supprimer_devis(db, quote_id=quote_id)
+    # Error 404: the current devis is not found
+    if not succes:
+        raise HTTPException(status_code=404, detail=f"Devis #{quote_id} introuvable.")
+    return None
