@@ -54,3 +54,13 @@ class QuoteAPIClient:
         except Exception as e:
             logger.error(f"Erreur lors de la récupération de l'historique : {e}")
             return []
+
+    def supprimer_devis(self, quote_id: int) -> bool:
+        """Envoie une requête de suppression d'un devis à l'API."""
+        url = f"{self.base_url}/quotes/{quote_id}"
+        try:
+            response = httpx.delete(url, timeout=5.0)
+            return response.status_code == 204
+        except Exception as e:
+            logger.error(f"Erreur lors de la suppression du devis #{quote_id} : {e}")
+            return False

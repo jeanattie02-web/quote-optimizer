@@ -4,11 +4,12 @@ import streamlit as st
 
 from src.calculator import calculer_devis
 from src.client import QuoteAPIClient
-from src.crud import obtenir_tous_les_devis, sauvegarder_devis
+from src.crud import obtenir_tous_les_devis, sauvegarder_devis, supprimer_devis
 from src.database import SessionLocal, init_db
 from src.logger import logger
 from src.models import QuoteInput
 from src.pdf_generator import generer_pdf_devis
+from src.excel_generator import generer_excel_devis
 
 # Initialisation de la BDD locale (pour le mode autonome)
 init_db()
@@ -139,15 +140,27 @@ with tab_calcul:
                 .round(2)
             )
             st.bar_chart(df_chart)
-
             st.subheader("📥 Exporter la synthèse")
-            pdf_bytes = generer_pdf_devis(quote_input, res)
-            st.download_button(
-                label="📄 Télécharger le devis (.PDF)",
-                data=pdf_bytes,
-                file_name="devis_quote_optimizer.pdf",
-                mime="application/pdf",
-            )
+            exp_col1, exp_col2 = st.columns(2)
+            with exp_col1:
+                pdf_bytes = generer_pdf_devis(quote_input, res)
+                st.download_button(
+                    label="📄 Télécharger le devis (.PDF)",
+                    data=pdf_bytes,
+                    file_name="devis_quote_optimizer.pdf",
+                    mime="application/pdf",
+                )
+
+            with exp_col2:
+                excel_bytes = generer_excel_devis(quote_input, res)
+                st.download_button(
+                    label="📊 Télécharger en Excel (.xlsx)",
+                    data=excel_bytes,
+                    file_name="devis_quote_optimizer.xlsx",
+                    mime="application/vnd.openxmlformats-"
+                    "officedocument.spreadsheetml.sheet",
+                    use_container_width=True,
+                )
         except Exception as e:
             logger.error(f"Erreur inattendue lors du calcul : {e}", exc_info=True)
             st.error(f"Erreur de calcul : {e}")
@@ -200,3 +213,40 @@ with tab_historique:
                 st.info("Aucun devis enregistré en base.")
         finally:
             db.close()
+
+    if data:
+        st.dataframe(pd.DataFrame(data), use_container_width=True)
+
+        st.markdown("---")
+        st.subheader("🗑️ Supprimer un devis")
+        del_col1, del_col2 = st.columns([2, 1])
+
+        with del_col1:
+            quote_id_to_delete = st.number_input(
+                "ID du devis à supprimer", min_value=1, step=1, value=1
+            )
+        with del_col2:
+            st.write("")
+            st.write("")
+            bouton_supprimer = st.button(
+                "Supprimer le devis", type="secondary", use_container_width=True
+            )
+
+        if bouton_supprimer:
+            succes = False
+            if api_active:
+                succes = api_client.supprimer_devis(quote_id_to_delete)
+            else:
+                db = SessionLocal()
+                try:
+                    succes = supprimer_devis(db, quote_id_to_delete)
+                finally:
+                    db.close()
+
+            if succes:
+                st.success(f"Devis #{quote_id_to_delete} supprimé.")
+                st.rerun()
+            else:
+                st.error(f"Devis #{quote_id_to_delete} introuvable.")
+    else:
+        st.info("Aucun devis enregistré en base.")

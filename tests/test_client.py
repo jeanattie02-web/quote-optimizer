@@ -40,3 +40,14 @@ def test_creer_devis_via_client(mock_post):
     result = client.creer_devis(payload)
     assert result["id"] == 42
     assert result["prix_vente_conseille"] == 2500.0
+
+
+@patch("httpx.delete")
+def test_supprimer_devis_via_client(mock_delete):
+    mock_response = MagicMock()
+    mock_response.status_code = 204
+    mock_delete.return_value = mock_response
+
+    client = QuoteAPIClient()
+    succes = client.supprimer_devis(quote_id=10)
+    assert succes is True
