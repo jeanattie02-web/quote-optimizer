@@ -10,6 +10,7 @@ from src.logger import logger
 from src.models import QuoteInput
 from src.pdf_generator import generer_pdf_devis
 from src.excel_generator import generer_excel_devis
+from src.analytics import calculer_kpis_globaux
 
 # Initialisation de la BDD locale (pour le mode autonome)
 init_db()
@@ -31,7 +32,9 @@ else:
     st.sidebar.warning("🟠 Mode Autonome (API Déconnectée)")
 
 # Déclaration unique des onglets
-tab_calcul, tab_historique = st.tabs(["💡 Nouveau Devis", "📜 Historique des Devis"])
+tab_calcul, tab_historique, tab_analytics = st.tabs(
+    ["💡 Nouveau Devis", "📜 Historique des Devis", "📈 Analytics & KPI"]
+)
 
 # --- ONGLET 1 : CALCULATEUR ---
 with tab_calcul:
@@ -250,3 +253,28 @@ with tab_historique:
                 st.error(f"Devis #{quote_id_to_delete} introuvable.")
     else:
         st.info("Aucun devis enregistré en base.")
+
+# --- ONGLET 3 : ANALYTICS & KPI ---
+with tab_analytics:
+    st.subheader("Consolidation des Performances Financières")
+
+    if liste_raw:
+        kpis = calculer_kpis_globaux(liste_raw)
+
+        kpi1, kpi2, kpi3, kpi4 = st.columns(4)
+        kpi1.metric("Nombre de Devis", kpis["total_devis"])
+        kpi2.metric("Chiffre d'Affaires Potentiel", f"{kpis['ca_total']:.2f} €")
+        kpi3.metric("Marge Moyenne", f"{kpis['marge_moyenne_pct']:.1f} %")
+        kpi4.metric("Marge Globale Générée", f"{kpis['marge_totale_euros']:.2f} €")
+
+        st.markdown("---")
+        st.subheader("Distribution des jours vendus par profil")
+
+        df_profils = pd.DataFrame(
+            list(kpis["repartition_profils"].items()),
+            columns=["Profil", "Jours Hommes"],
+        ).set_index("Profil")
+
+        st.bar_chart(df_profils)
+    else:
+        st.info("Ajoutez des devis pour afficher les indicateurs financiers.")
