@@ -171,7 +171,8 @@ with tab_calcul:
 # --- ONGLET 2 : HISTORIQUE ---
 with tab_historique:
     st.subheader("Historique des devis enregistrés en BDD")
-
+    data = []
+    donnee_kpis = []
     if api_active:
         liste_raw = api_client.recuperer_historique()
         if liste_raw:
@@ -189,9 +190,7 @@ with tab_historique:
                 }
                 for d in liste_raw
             ]
-            st.dataframe(pd.DataFrame(data), use_container_width=True)
-        else:
-            st.info("Aucun devis enregistré en base.")
+            donnees_kpis = liste_raw
     else:
         db = SessionLocal()
         try:
@@ -211,9 +210,18 @@ with tab_historique:
                     }
                     for d in devis_liste
                 ]
-                st.dataframe(pd.DataFrame(data), use_container_width=True)
-            else:
-                st.info("Aucun devis enregistré en base.")
+                donnees_kpis = [
+                    {
+                        "prix_vente_conseille": d.prix_vente_conseille,
+                        "marge_cible": d.marge_cible,
+                        "jours_junior": d.jours_junior,
+                        "jours_confirme": d.jours_confirme,
+                        "jours_senior": d.jours_senior,
+                        "marge_brute_euros": d.ma,
+                    }
+                    for d in devis_liste
+                ]
+
         finally:
             db.close()
 

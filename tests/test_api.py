@@ -39,6 +39,12 @@ def test_creer_et_lister_devis_via_api():
     assert any(d["id"] == data["id"] for d in devis_liste)
 
 
+def test_pagination_limit():
+    response = client.get("/quotes?limit=1")
+    assert response.status_code == 200
+    assert len(response.json()) <= 1
+
+
 def test_validation_erreur_payload_invalide():
     # Envoi de jours négatifs (non autorisés par Pydantic)
     payload_invalide = {

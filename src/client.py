@@ -39,11 +39,11 @@ class QuoteAPIClient:
             raise RuntimeError(f"Échec de communication avec l'API : {e}")
 
     def recuperer_historique(
-        self, limit: int = 100, min_prix: Optional[float] = None
+        self, skip: int = 0, limit: int = 100, min_prix: Optional[float] = None
     ) -> List[Dict[str, Any]]:
         """Récupère la liste des devis enregistrés."""
         url = f"{self.base_url}/quotes"
-        params: Dict[str, Any] = {"limit": limit}
+        params: Dict[str, Any] = {"skip": skip, "limit": limit}
         if min_prix is not None:
             params["min_prix"] = min_prix
 
