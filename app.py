@@ -266,8 +266,8 @@ with tab_historique:
 with tab_analytics:
     st.subheader("Consolidation des Performances Financières")
 
-    if liste_raw:
-        kpis = calculer_kpis_globaux(liste_raw)
+    if donnees_kpis:
+        kpis = calculer_kpis_globaux(donnees_kpis)
 
         kpi1, kpi2, kpi3, kpi4 = st.columns(4)
         kpi1.metric("Nombre de Devis", kpis["total_devis"])
