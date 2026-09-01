@@ -217,7 +217,7 @@ with tab_historique:
                         "jours_junior": d.jours_junior,
                         "jours_confirme": d.jours_confirme,
                         "jours_senior": d.jours_senior,
-                        "marge_brute_euros": d.ma,
+                        "marge_brute_euros": d.marge_brute_euros,
                     }
                     for d in devis_liste
                 ]

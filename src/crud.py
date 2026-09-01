@@ -7,9 +7,9 @@ from src.logger import logger
 from src.models import QuoteInput
 
 
-def sauvegarder_devis(
+def sauvegarder_devis(      # (CREATE)
     db: Session, quote_input: QuoteInput, res: dict
-) -> DevisDB:  # (CREATE)
+) -> DevisDB: 
     """Enregistre un nouveau devis en base de données."""
     logger.info("Enregistrement du devis en base de données...")
     db_devis = DevisDB(
