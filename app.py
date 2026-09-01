@@ -172,7 +172,7 @@ with tab_calcul:
 with tab_historique:
     st.subheader("Historique des devis enregistrés en BDD")
     data = []
-    donnee_kpis = []
+    donnees_kpis = []
     if api_active:
         liste_raw = api_client.recuperer_historique()
         if liste_raw:
