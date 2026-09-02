@@ -171,8 +171,8 @@ with tab_calcul:
 # --- ONGLET 2 : HISTORIQUE ---
 with tab_historique:
     st.subheader("Historique des devis enregistrés en BDD")
-    data = [] # pour le tableau d'affichage de l'historique
-    donnees_kpis = [] # pour calculer_kpis_globaux 
+    data = []          # pour le tableau d'affichage de l'historique
+    donnees_kpis = []  # pour calculer_kpis_globaux
     if api_active:
         liste_raw = api_client.recuperer_historique()
         if liste_raw:
