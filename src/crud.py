@@ -9,7 +9,7 @@ from src.models import QuoteInput
 
 def sauvegarder_devis(      # (CREATE)
     db: Session, quote_input: QuoteInput, res: dict
-) -> DevisDB: 
+) -> DevisDB:
     """Enregistre un nouveau devis en base de données."""
     logger.info("Enregistrement du devis en base de données...")
     db_devis = DevisDB(
