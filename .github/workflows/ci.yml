@@ -31,7 +31,11 @@ jobs:
 
     - name: Lancement des tests unitaires
       run: |
-        pytest
+        python -m pytest
+    
+    - name: Verification du style avec Black
+      run: |
+        python -m black --check .
 
   docker-build:
     runs-on: ubuntu-latest
