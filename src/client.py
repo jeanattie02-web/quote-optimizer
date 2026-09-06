@@ -12,6 +12,7 @@ class QuoteAPIClient:
 
     def __init__(self, base_url: str = API_BASE_URL):
         self.base_url = base_url.rstrip("/")
+        self.api_key = os.getenv("API_KEY_SECRET")
 
     def verifier_sante(self) -> bool:
         """Vérifie si l'API est en ligne et accessible."""
@@ -25,8 +26,11 @@ class QuoteAPIClient:
     def creer_devis(self, payload: QuoteInput) -> Dict[str, Any]:
         """Envoie une requête de calcul et sauvegarde de devis à l'API."""
         url = f"{self.base_url}/quotes"
+        headers = {"X-API-Key": self.api_key} if self.api_key else {}
         try:
-            response = httpx.post(url, json=payload.model_dump(), timeout=5.0)
+            response = httpx.post(
+                url, json=payload.model_dump(), headers=headers, timeout=5.0
+            )
             response.raise_for_status()
             return response.json()
         except httpx.HTTPStatusError as e:

@@ -8,6 +8,7 @@ from src.models import QuoteInput
 from fastapi import Depends, FastAPI, HTTPException, Query
 from sqlalchemy.orm import Session
 from src.schemas import QuoteResponse
+from src.auth import verifier_cle_api
 
 # Initialise les tables en base au démarrage de l'API
 init_db()
@@ -31,7 +32,11 @@ def health_check():
     status_code=201,
     tags=["Quotes"],
 )
-def creer_devis(payload: QuoteInput, db: Session = Depends(get_db)):
+def creer_devis(
+    payload: QuoteInput,
+    db: Session = Depends(get_db),
+    cle_api: str = Depends(verifier_cle_api),
+):
     """Calcule et sauvegarde un nouveau devis en base de données."""
     try:
         res = calculer_devis(payload)
@@ -66,7 +71,11 @@ def lister_devis(
     tags=["Quotes"],
 )
 # Supression
-def effacer_devis(quote_id: int, db: Session = Depends(get_db)):
+def effacer_devis(
+    quote_id: int,
+    db: Session = Depends(get_db),
+    cle_api: str = Depends(verifier_cle_api),
+):
     """Supprime un devis spécifique de la base de données."""
     succes = supprimer_devis(db, quote_id=quote_id)
     # Error 404: the current devis is not found
