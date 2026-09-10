@@ -11,7 +11,6 @@ def test_cle_valide(monkeypatch):
 
 def test_cle_invalide(monkeypatch):
     with pytest.raises(HTTPException) as exc_info:
-        monkeypatch.setenv("API_KEY_SECRET", "ma-cle-secrete")
         verifier_cle_api(cle_recue="cle_invalide")
     assert exc_info.value.status_code == 401
     assert "Clé API invalide" in exc_info.value.detail
