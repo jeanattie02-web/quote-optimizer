@@ -22,4 +22,4 @@ def test_init_db_et_creation_table():
 def test_base_de_donnees_fichier_cree():
     init_db()
     # Vérifie que le fichier SQLite est bien généré sur le disque
-    assert os.path.exists("quote_optimizer.db")
+    assert os.path.exists("data/quote_optimizer.db")
