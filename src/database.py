@@ -19,7 +19,7 @@ def get_db():
     try:
         yield db
     finally:
-        db.close()
+        db.close() #
 
 
 def init_db():
