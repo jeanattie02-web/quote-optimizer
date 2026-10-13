@@ -1,3 +1,4 @@
+from pathlib import Path
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 import os
@@ -17,7 +18,7 @@ def get_db():
     """Générateur de session de base de données."""
     db = SessionLocal()
     try:
-        yield db
+        yield db ##
     finally:
         db.close() #
 

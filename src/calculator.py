@@ -1,3 +1,5 @@
+
+
 # src/calculator.py
 from src.models import QuoteInput
 from src.logger import logger
