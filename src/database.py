@@ -1,10 +1,13 @@
-from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
 import os
 
-DATABASE_URL = "sqlite:///./data/quote_optimizer.db"
+from sqlalchemy import create_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
 
-os.makedirs("./data", exist_ok=True)
+# Emplacement de la base : configurable par la variable d'environnement DATABASE_PATH
+# (par défaut le dossier data/ du projet, /tmp/ sur Streamlit Cloud)
+DB_PATH = os.getenv("DATABASE_PATH", "./data/quote_optimizer.db")
+os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+DATABASE_URL = f"sqlite:///{DB_PATH}"
 
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 
