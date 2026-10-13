@@ -34,7 +34,6 @@ def health_check():
 )
 def creer_devis(
     payload: QuoteInput,
-    Input,
     db: Session = Depends(get_db),
     cle_api: str = Depends(verifier_cle_api),
 ):
