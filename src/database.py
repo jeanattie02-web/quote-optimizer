@@ -20,9 +20,9 @@ def get_db():
     """Générateur de session de base de données."""
     db = SessionLocal()
     try:
-        yield db ##
+        yield db
     finally:
-        db.close() #
+        db.close()
 
 
 def init_db():
