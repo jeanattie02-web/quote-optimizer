@@ -1,10 +1,11 @@
+"""Connexion à la base SQLite et création des tables."""
+
 import os
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 
-# Emplacement de la base : configurable par la variable d'environnement DATABASE_PATH
-# (par défaut le dossier data/ du projet, /tmp/ sur Streamlit Cloud)
+# Chemin de la base, modifiable par la variable d'environnement DATABASE_PATH
 DB_PATH = os.getenv("DATABASE_PATH", "./data/quote_optimizer.db")
 os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
 DATABASE_URL = f"sqlite:///{DB_PATH}"
@@ -28,5 +29,4 @@ def get_db():
 def init_db():
     """Crée toutes les tables définies dans les modèles ORM."""
     import src.db_models  # noqa: F401
-
     Base.metadata.create_all(bind=engine)
