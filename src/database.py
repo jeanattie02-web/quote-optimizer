@@ -29,4 +29,5 @@ def get_db():
 def init_db():
     """Crée toutes les tables définies dans les modèles ORM."""
     import src.db_models  # noqa: F401
+
     Base.metadata.create_all(bind=engine)
