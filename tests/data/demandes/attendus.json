@@ -1,0 +1,14 @@
+{
+    "demande_lyon.pdf": {
+        "jours_junior": 20,
+        "jours_confirme": 10,
+        "jours_senior": 3,
+        "frais_deplacement": 1500
+    },
+    "demande_bordeaux.pdf": {
+        "jours_junior": null,
+        "jours_confirme": null,
+        "jours_senior": null,
+        "frais_deplacement": null
+    }
+}
