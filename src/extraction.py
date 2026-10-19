@@ -20,7 +20,6 @@ CONSIGNES = (
     "réponds null : n'invente jamais de valeur. "
     "Les jours sont des nombres de jours de travail, pas des jours de la semaine. "
     "Les frais de déplacement ne sont pas le budget global. "
-    "Les charges peuvent être présentées dans un tableau, avec une ligne par profil."
 )
 
 
