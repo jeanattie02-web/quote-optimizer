@@ -19,7 +19,7 @@ CONSIGNES = (
     "Si une information n'apparaît pas explicitement dans le document, "
     "réponds null : n'invente jamais de valeur. "
     "Les jours sont des nombres de jours de travail, pas des jours de la semaine. "
-    "Les frais de déplacement ne sont pas le budget global."
+    "Les frais de déplacement ne sont pas le budget global. "
     "Les charges peuvent être présentées dans un tableau, avec une ligne par profil."
 )
 
@@ -102,3 +102,11 @@ def lire_jours_tableaux(chemin: str) -> dict:
                         if mot in texte_ligne:
                             jours[champ] = int(nombre.group(1))
     return jours
+
+
+# ---fusion des deux sources---
+def analyser_demande(chemin: str) -> DemandeDevis:
+    """Analyse une demande PDF : tableaux lus sans IA, texte libre confié au modèle."""
+    demande = extraire_champs(extraire_texte(chemin))
+    jours_tableaux = lire_jours_tableaux(chemin)
+    return demande.model_copy(update=jours_tableaux)
