@@ -11,3 +11,4 @@ uvicorn
 httpx
 openpyxl
 python-dotenv
+pdfplumber
