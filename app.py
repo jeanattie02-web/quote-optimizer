@@ -1,3 +1,4 @@
+import httpx
 import pandas as pd
 from pydantic import ValidationError
 import streamlit as st
@@ -11,6 +12,7 @@ from src.models import QuoteInput
 from src.pdf_generator import generer_pdf_devis
 from src.excel_generator import generer_excel_devis
 from src.analytics import calculer_kpis_globaux
+from src.extraction import analyser_demande
 
 # Initialisation de la BDD locale (pour le mode autonome)
 init_db()
@@ -40,22 +42,51 @@ tab_calcul, tab_historique, tab_analytics = st.tabs(
 with tab_calcul:
     st.subheader("Calculateur de Devis")
 
+    fichier = st.file_uploader("Demande de devis (PDF)", type=["pdf"])
+    if fichier is not None and st.button("Analyser la demande"):
+        try:
+            with st.spinner("Lecture du document..."):
+                demande = analyser_demande(fichier)
+        except httpx.HTTPError as e:
+            logger.warning(f"Extraction impossible : {e}")
+            st.error(
+                "Le modèle d'IA local (Ollama) ne répond pas. "
+                "Lancez-le, ou remplissez les champs à la main."
+            )
+        else:
+            st.session_state["jours_junior"] = demande.jours_junior or 0
+            st.session_state["jours_confirme"] = demande.jours_confirme or 0
+            st.session_state["jours_senior"] = demande.jours_senior or 0
+            st.session_state["frais_deplacement"] = demande.frais_deplacement or 0.0
+
+            manquants = []
+            for champ, valeur in demande.model_dump().items():
+                if valeur is None:
+                    manquants.append(champ)
+            st.session_state["manquants"] = manquants
+
+    if st.session_state.get("manquants"):
+        st.warning(
+            "Non trouvé dans le document, à vérifier : "
+            + ", ".join(st.session_state["manquants"])
+        )
+
     col1, col2 = st.columns(2)
 
     with col1:
         jours_junior = st.number_input(
-            "Jours Développeur Junior (300€/j)", min_value=0, value=0
+            "Jours Développeur Junior (300€/j)", min_value=0, key="jours_junior"
         )
         jours_confirme = st.number_input(
-            "Jours Développeur Confirmé (500€/j)", min_value=0, value=0
+            "Jours Développeur Confirmé (500€/j)", min_value=0, key="jours_confirme"
         )
         jours_senior = st.number_input(
-            "Jours Développeur Senior (800€/j)", min_value=0, value=0
+            "Jours Développeur Senior (800€/j)", min_value=0, key="jours_senior"
         )
 
     with col2:
         frais_deplacement = st.number_input(
-            "Frais de déplacement / Annexes (€)", min_value=0.0, value=0.0
+            "Frais de déplacement / Annexes (€)", min_value=0.0, key="frais_deplacement"
         )
         marge_cible_pct = st.slider(
             "Marge cible (%)", min_value=5, max_value=80, value=25

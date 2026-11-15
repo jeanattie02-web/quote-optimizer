@@ -1,13 +1,13 @@
 """Extraction des demandes de devis : texte des PDF, schéma des champs et modèle."""
 
 import os
+import re
+from io import BytesIO
 from typing import Optional
 
 import httpx
 import pdfplumber
 from pydantic import BaseModel, Field
-
-import re
 
 # --- Réglages du modèle de langage (modifiables par variables d'environnement) ---
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/api/chat")
@@ -48,7 +48,7 @@ class DemandeDevis(BaseModel):
 
 
 # --- Du PDF au texte ---
-def extraire_texte(chemin: str) -> str:
+def extraire_texte(chemin: str | BytesIO) -> str:
     """Renvoie tout le texte d'un PDF, page après page."""
     pages = []
     with pdfplumber.open(chemin) as pdf:
@@ -86,7 +86,7 @@ MOTIF_JOURS = re.compile(r"(\d+)\s*jours?")
 
 
 # --- Lecture manuelle du tableau ---
-def lire_jours_tableaux(chemin: str) -> dict:
+def lire_jours_tableaux(chemin: str | BytesIO) -> dict:
     """Lit les jours par profil dans les tableaux du PDF"""
     jours = {}
     with pdfplumber.open(chemin) as pdf:
@@ -103,8 +103,8 @@ def lire_jours_tableaux(chemin: str) -> dict:
     return jours
 
 
-# ---fusion des deux sources---
-def analyser_demande(chemin: str) -> DemandeDevis:
+# --- Fusion des deux sources ---
+def analyser_demande(chemin: str | BytesIO) -> DemandeDevis:
     """Analyse une demande PDF : tableaux lus sans IA, texte libre confié au modèle."""
     demande = extraire_champs(extraire_texte(chemin))
     jours_tableaux = lire_jours_tableaux(chemin)
