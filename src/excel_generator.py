@@ -1,6 +1,7 @@
 from io import BytesIO
 from typing import Any, Dict
 from openpyxl import Workbook
+from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.styles import Alignment, Font, PatternFill
 from src.models import QuoteInput
 
@@ -9,6 +10,7 @@ def generer_excel_devis(quote_input: QuoteInput, res: Dict[str, Any]) -> bytes:
     """Génère un classeur Excel synthétique avec mise en forme professionnelle."""
     wb = Workbook()
     ws = wb.active
+    assert isinstance(ws, Worksheet)
     ws.title = "Synthèse Financière"
 
     # Styles
@@ -28,7 +30,7 @@ def generer_excel_devis(quote_input: QuoteInput, res: Dict[str, Any]) -> bytes:
     cell_titre.fill = fill_header
     cell_titre.alignment = align_center
 
-    # Données d'entrée (Main-d'œuvre & Paramètres)
+    # années d'entrée (Main-d'œuvre & Paramètres)
     ws.append([])
     ws.append(["Paramètres du projet", "Valeur"])
     ws["A3"].font = font_section
