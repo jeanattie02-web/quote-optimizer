@@ -1,6 +1,7 @@
 """Extraction des demandes de devis : texte des PDF, schéma des champs et modèle."""
 
 import os
+from io import BytesIO
 from typing import Optional
 
 import httpx
@@ -48,7 +49,7 @@ class DemandeDevis(BaseModel):
 
 
 # --- Du PDF au texte ---
-def extraire_texte(chemin: str) -> str:
+def extraire_texte(chemin: str |BytesIO) -> str:
     """Renvoie tout le texte d'un PDF, page après page."""
     pages = []
     with pdfplumber.open(chemin) as pdf:
@@ -58,7 +59,7 @@ def extraire_texte(chemin: str) -> str:
 
 
 # --- Du texte aux champs vérifiés ---
-def extraire_champs(texte: str) -> DemandeDevis:
+def extraire_champs(texte: str |BytesIO) -> DemandeDevis:
     """Demande au modèle les champs d'une demande de devis, puis les vérifie."""
     requete = {
         "model": MODELE,
@@ -86,7 +87,7 @@ MOTIF_JOURS = re.compile(r"(\d+)\s*jours?")
 
 
 # --- Lecture manuelle du tableau ---
-def lire_jours_tableaux(chemin: str) -> dict:
+def lire_jours_tableaux(chemin: str | BytesIO) -> dict:
     """Lit les jours par profil dans les tableaux du PDF"""
     jours = {}
     with pdfplumber.open(chemin) as pdf:
@@ -104,7 +105,7 @@ def lire_jours_tableaux(chemin: str) -> dict:
 
 
 # ---fusion des deux sources---
-def analyser_demande(chemin: str) -> DemandeDevis:
+def analyser_demande(chemin: str | BytesIO) -> DemandeDevis:
     """Analyse une demande PDF : tableaux lus sans IA, texte libre confié au modèle."""
     demande = extraire_champs(extraire_texte(chemin))
     jours_tableaux = lire_jours_tableaux(chemin)
